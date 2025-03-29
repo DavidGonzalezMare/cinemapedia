@@ -33,35 +33,73 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     super.initState();
 
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
+    ref.read(popularMoviesProvider.notifier).loadNextPage();
+    ref.read(upcomingMoviesProvider.notifier).loadNextPage();
+    ref.read(topRatedMoviesProvider.notifier).loadNextPage();
   }
 
   @override
   Widget build(BuildContext context) {
-    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final slideShowMovies = ref.watch(moviesSlideshowProvider);
+    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
+    final popularMovies = ref.watch(popularMoviesProvider);
+    final upcomingMovies = ref.watch(upcomingMoviesProvider);
+    final topRatedMovies = ref.watch(topRatedMoviesProvider);
 
-    //if (slideShowMovies.isEmpty)
-    //  return Center(child: CircularProgressIndicator());
-
-    return Column(
-      children: [
-        CustomAppbar(),
-
-        MoviesSlideshow(movies: slideShowMovies),
-
-        MoviesHorizontalListview(
-          movies: nowPlayingMovies,
-          title: 'En cines',
-          subTitle: 'Lunes 20',
-          loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
+    return FullScreenLoader();
+    
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: CustomAppbar(),
+          ),
+          
         ),
+        SliverList(
+            delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Column(
+              children: [                
+                MoviesSlideshow(movies: slideShowMovies),
+                MoviesHorizontalListview(
+                  movies: nowPlayingMovies,
+                  title: 'En cines',
+                  subTitle: 'Lunes 20',
+                  loadNextPage: () => ref
+                      .read(nowPlayingMoviesProvider.notifier)
+                      .loadNextPage(),
+                ),
 
-        MoviesHorizontalListview(
-          movies: nowPlayingMovies,
-          title: 'En cines',
-          subTitle: 'Lunes 20',
-          loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
-        ),
+                MoviesHorizontalListview(
+                  movies: upcomingMovies,
+                  title: 'Proximamente',
+                  //subTitle: 'Lunes 20',
+                  loadNextPage: () =>
+                      ref.read(upcomingMoviesProvider.notifier).loadNextPage(),
+                ),
+
+                MoviesHorizontalListview(
+                  movies: popularMovies,
+                  title: 'Popular',
+                  //subTitle: 'Lunes 20',
+                  loadNextPage: () =>
+                      ref.read(popularMoviesProvider.notifier).loadNextPage(),
+                ),
+
+                MoviesHorizontalListview(
+                  movies: topRatedMovies,
+                  title: 'Top Rated',
+                  //subTitle: 'Lunes 20',
+                  loadNextPage: () =>
+                      ref.read(topRatedMoviesProvider.notifier).loadNextPage(),
+                ),
+              ],
+            );
+          },
+          childCount: 1,
+        ))
       ],
     );
   }
@@ -83,7 +121,7 @@ class ListaAntigua extends StatelessWidget {
           itemCount: nowPlayingMovies.length,
           itemBuilder: (context, index) {
             final movie = nowPlayingMovies[index];
-    
+
             return ListTile(
               title: Text(movie.title),
             );
